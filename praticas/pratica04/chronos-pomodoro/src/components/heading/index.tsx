@@ -1,10 +1,10 @@
-import styles from "./Heading.module.css";
+import styles from "./styles.module.css";
 type HeadingProps = {
   children: React.ReactNode; // Inicialmente, dizemos que children será apenas texto
 };
 
 export function Heading({ children }: HeadingProps) {
   return (
-    <h1>{children}</h1>
+    <h1 className={styles.heading}>{children}</h1>
   );
 }
