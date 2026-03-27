@@ -1,15 +1,15 @@
-import { Container } from './components/container';
-import { Logo } from './components/Logo';
-import { Menu } from './components/Menu';
-import { CountDown } from './components/CountDown';
-import { DefaultInput } from './components/DefaultInput';
-import { Cycles } from './components/Cycles';
-import { DefaultButton } from './components/DefaultButton';
-import { PlayCircleIcon } from 'lucide-react';
-import { Footer } from './components/Footer'; // <-- Importado!
+import { Container } from "./components/container";
+import { Logo } from "./components/Logo";
+import { Menu } from "./components/Menu";
+import { CountDown } from "./components/CountDown";
+import { DefaultInput } from "./components/DefaultInput";
+import { Cycles } from "./components/Cycles";
+import { DefaultButton } from "./components/DefaultButton";
+import { PlayCircleIcon } from "lucide-react";
+import { Footer } from "./components/Footer"; // <-- Importado!
 
-import './styles/theme.css';
-import './styles/globals.css';
+import "./styles/theme.css";
+import "./styles/globals.css";
 
 export function App() {
   return (
@@ -25,25 +25,25 @@ export function App() {
       </Container>
 
       <Container>
-        <form className='form' action=''>
-          <div className='formRow'>
+        <form className="form" action="">
+          <div className="formRow">
             <DefaultInput
-              labelText='task'
-              id='meuInput'
-              type='text'
-              placeholder='Digite algo'
+              labelText="task"
+              id="meuInput"
+              type="text"
+              placeholder="Digite algo"
             />
           </div>
 
-          <div className='formRow'>
+          <div className="formRow">
             <p>Contador</p>
           </div>
 
-          <div className='formRow'>
+          <div className="formRow">
             <Cycles />
           </div>
 
-          <div className='formRow'>
+          <div className="formRow">
             {/* Mantivemos apenas o botão principal de Play */}
             <DefaultButton icon={<PlayCircleIcon />} />
           </div>
