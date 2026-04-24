@@ -1,33 +1,66 @@
-import { PlayCircleIcon } from 'lucide-react';
+import { PlayCircleIcon, StopCircleIcon } from 'lucide-react';
 import { Cycles } from '../Cycles';
 import { DefaultButton } from '../DefaultButton';
 import { DefaultInput } from '../DefaultInput';
-import { useTaskContext } from '../../contexts/TaskContext/useTaskContext';
 import { useRef } from 'react';
+import type { TaskModel } from '../../models/TaskModel';
+import { useTaskContext } from '../../contexts/useTaskContext';
+import { getNextCycle } from '../../utils/getNextCycle';
+import { getNextCycleType } from '../../utils/getNextCycleType';
+import { TaskActionTypes } from '../../contexts/TaskActions';
+import { Tips } from '../Tips';
 
 export function MainForm() {
+  const { state, dispatch } = useTaskContext();
   const taskNameInput = useRef<HTMLInputElement>(null);
+
   function handleCreateNewTask(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    console.log('DEU CERTO');
-  }
-  const { setState } = useTaskContext();
+    if (taskNameInput.current === null) return;
 
-  function handleClick() {
-    setState(prevState => {
-      return {
-        ...prevState,
-        formattedSecondsRemaining: '21:00',
-      };
-    });
+    const taskName = taskNameInput.current.value.trim();
+
+    if (!taskName) {
+      alert('Digite o nome da tarefa');
+      return;
+    }
+
+    const nextCycle = getNextCycle(state.currentCycle);
+    const nextCyleType = getNextCycleType(nextCycle);
+
+    const newTask: TaskModel = {
+      id: Date.now().toString(),
+      name: taskName,
+      startDate: Date.now(),
+      completeDate: null,
+      interruptDate: null,
+      duration: state.config[nextCyleType],
+      type: nextCyleType,
+    };
+
+    dispatch({ type: TaskActionTypes.START_TASK, payload: newTask });
+
+    const worker = new Worker(
+      new URL('../../workers/timerWorker.js', import.meta.url),
+    );
+
+    worker.postMessage('FAVOR'); // Sim, posso fazer um favor
+    worker.postMessage('FALA_OI'); // OK: OI!
+    worker.postMessage('BLALBLA'); // Não entendi!
+    worker.postMessage('FECHAR'); // Tá bom, vou fechar
+
+    worker.onmessage = function (event) {
+      console.log('PRINCIPAL recebeu:', event.data);
+    };
+  }
+
+  function handleInterruptTask() {
+    dispatch({ type: TaskActionTypes.INTERRUPT_TASK });
   }
 
   return (
     <form onSubmit={handleCreateNewTask} className='form' action=''>
-      <button onClick={handleClick} type='button'>
-        Clicar
-      </button>
       <div className='formRow'>
         <DefaultInput
           labelText='task'
@@ -35,19 +68,41 @@ export function MainForm() {
           type='text'
           placeholder='Digite algo'
           ref={taskNameInput}
+          disabled={!!state.activeTask}
         />
       </div>
 
       <div className='formRow'>
-        <p>Próximo intervalo é de 25min</p>
+        <Tips />
       </div>
 
-      <div className='formRow'>
-        <Cycles />
-      </div>
+      {state.currentCycle > 0 && (
+        <div className='formRow'>
+          <Cycles />
+        </div>
+      )}
 
       <div className='formRow'>
-        <DefaultButton icon={<PlayCircleIcon />} />
+        {!state.activeTask && (
+          <DefaultButton
+            aria-label='Iniciar nova tarefa'
+            title='Iniciar nova tarefa'
+            type='submit'
+            icon={<PlayCircleIcon />}
+          />
+        )}
+
+        {!!state.activeTask && (
+          <DefaultButton
+            aria-label='Interromper tarefa atual'
+            title='Interromper tarefa atual'
+            type='button'
+            color='red'
+            icon={<StopCircleIcon />}
+            onClick={handleInterruptTask}
+            key='botao_button'
+          />
+        )}
       </div>
     </form>
   );
